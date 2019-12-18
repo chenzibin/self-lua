@@ -35,12 +35,12 @@ public class BinaryChunk {
 
     private String header;
 
-    private byte upValueSize;
+    private byte sizeUpValues;
 
     private Object mainFunc;
 
     @Data
-    public class header {
+    public class Header {
         /*签名,快速校验文件格式*/
         private byte[] signature;
         /*版本号*/
@@ -63,5 +63,14 @@ public class BinaryChunk {
         private long luacInt;
         /*370.5,检测浮点数格式*/
         private double luacNum;
+    }
+
+    public class Prototype {
+        private String source;
+        private int lineDefined;
+        private int LastLineDefined;
+        private byte numParams;
+        private byte isVararg;
+        private byte maxStackSize;
     }
 }
