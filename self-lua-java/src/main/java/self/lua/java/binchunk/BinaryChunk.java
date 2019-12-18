@@ -35,7 +35,7 @@ public class BinaryChunk {
 
     private String header;
 
-    private byte sizeUpValues;
+    private byte sizeUpvalues;
 
     private Object mainFunc;
 
@@ -66,11 +66,35 @@ public class BinaryChunk {
     }
 
     public class Prototype {
+        /*基本信息*/
+        /*源文件名*/
         private String source;
+        /*起始行号*/
         private int lineDefined;
+        /*终止行号*/
         private int LastLineDefined;
+        /*固定参数个数*/
         private byte numParams;
+        /*是否是vararg函数*/
         private byte isVararg;
+        /*运行函数所必要的寄存器数量*/
         private byte maxStackSize;
+
+        /*指令表*/
+        private int code;
+        /*常量表*/
+        private int[] constants;
+        /*upvalue表*/
+        private Upvalue[] upvalues;
+        /*子函数原型表*/
+        private Prototype[] protos;
+
+        /*调试信息*/
+        /*行号表*/
+        private int[] lineInfo;
+        /*局部变量表*/
+        private LocVar[] locVars;
+        /*upvalue名列表*/
+        private String[] upvalueNames;
     }
 }
