@@ -75,7 +75,7 @@ public class BinaryChunk {
         private int LastLineDefined;
         /*固定参数个数*/
         private byte numParams;
-        /*是否是vararg函数*/
+        /*是否是变长参数函数*/
         private byte isVararg;
         /*运行函数所必要的寄存器数量*/
         private byte maxStackSize;
@@ -96,5 +96,11 @@ public class BinaryChunk {
         private LocVar[] locVars;
         /*upvalue名列表*/
         private String[] upvalueNames;
+
+        public class Upvalue {
+            private byte instack;
+            private byte idx;
+        }
     }
+
 }
