@@ -33,11 +33,11 @@ public class BinaryChunk {
 
     private static final double LUAC_NUM = 370.5;
 
-    private String header;
+    private Header header;
 
     private byte sizeUpvalues;
 
-    private Object mainFunc;
+    private Prototype mainFunc;
 
     @Data
     public class Header {
@@ -101,6 +101,19 @@ public class BinaryChunk {
             private byte instack;
             private byte idx;
         }
+
+        public class LocVar {
+            private String varName;
+            private int startPc;
+            private int endPc;
+        }
+    }
+
+    public Prototype undump(byte[] data) {
+        Reader reader = new Reader(data);
+        reader.checkHeader();
+        reader.readByte();
+        return reader.readProto("");
     }
 
 }
