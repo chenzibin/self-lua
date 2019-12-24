@@ -1,6 +1,7 @@
 package self.lua.java.binchunk;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class Reader {
 
@@ -18,10 +19,7 @@ public class Reader {
     }
 
     public int readUint32() {
-        int i = Byte.toUnsignedInt(data[offset]);
-        i += Byte.toUnsignedInt(data[1 + offset]) << 8;
-        i += Byte.toUnsignedInt(data[2 + offset]) << 16;
-        i += Byte.toUnsignedInt(data[3 + offset]) << 24;
+        int i = IntStream.range(0, 4).map(index -> Byte.toUnsignedInt(data[index + offset]) << (8 * index)).sum();
         offset += 4;
         return i;
     }
@@ -32,16 +30,28 @@ public class Reader {
         return little + big;
     }
 
-    public void readLuaInteger() {
-
+    public long readLuaInteger() {
+        long i = IntStream.range(0, 8).map(index -> data[index + offset] << (8 * index)).sum();
+        offset += 8;
+        return i;
     }
 
-    public void readLuaNumber() {
-
+    public double readLuaNumber() {
+        double i = Double.longBitsToDouble(readLuaInteger());
+        offset += 8;
+        return i;
     }
 
-    public void readString() {
+    public String readString() {
+        long size = readByte();
+        if (size == 0) {
+            return "";
+        }
+        if (size == 0xFF) {
+            size = readLuaInteger();
+        }
 
+        return new String(readBytes(size - 1));
     }
 
     public byte[] readBytes(int length) {

@@ -11,13 +11,13 @@ import lombok.Data;
 @Data
 public class BinaryChunk {
 
-    private static final int LUA_SIGNATURE = 0x1b4c7561;
+    private static final byte[] LUA_SIGNATURE = {0x1b, 'L', 'u', 'a'};
 
     private static final byte LUAC_VERSION = 0x53;
 
     private static final byte LUAC_FORMAT = 0;
 
-    private static final String LUAC_DATA = "";
+    private static final byte[] LUAC_DATA = {0x19, (byte) 0x93, '\r', '\n', 0x1a, '\n'};
 
     private static final int CINT_SIZE = 4;
 
@@ -32,6 +32,18 @@ public class BinaryChunk {
     private static final short LUAC_INT = 0x5678;
 
     private static final double LUAC_NUM = 370.5;
+
+    private static final byte TAG_NIL = 0x00;
+
+    private static final byte TAG_BOOLEAN = 0x01;
+
+    private static final byte TAG_NUMBER = 0x03;
+
+    private static final byte TAG_INTEGER = 0x13;
+
+    private static final byte TAG_SHORT_STR = 0x04;
+
+    private static final byte TAG_LONG_STR = 0x14;
 
     private Header header;
 
