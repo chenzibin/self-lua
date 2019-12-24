@@ -1,5 +1,6 @@
 package self.lua.java.binchunk;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -11,39 +12,39 @@ import lombok.Data;
 @Data
 public class BinaryChunk {
 
-    private static final byte[] LUA_SIGNATURE = {0x1b, 'L', 'u', 'a'};
+    public static final byte[] LUA_SIGNATURE = {0x1b, 'L', 'u', 'a'};
 
-    private static final byte LUAC_VERSION = 0x53;
+    public static final byte LUAC_VERSION = 0x53;
 
-    private static final byte LUAC_FORMAT = 0;
+    public static final byte LUAC_FORMAT = 0;
 
-    private static final byte[] LUAC_DATA = {0x19, (byte) 0x93, '\r', '\n', 0x1a, '\n'};
+    public static final byte[] LUAC_DATA = {0x19, (byte) 0x93, '\r', '\n', 0x1a, '\n'};
 
-    private static final int CINT_SIZE = 4;
+    public static final int CINT_SIZE = 4;
 
-    private static final int CSIZET_SIZE = 8;
+    public static final int CSIZET_SIZE = 8;
 
-    private static final int INSTRUCTION_SIZE = 4;
+    public static final int INSTRUCTION_SIZE = 4;
 
-    private static final int LUA_INTEGER_SIZE = 8;
+    public static final int LUA_INTEGER_SIZE = 8;
 
-    private static final int LUA_NUMBER_SIZE = 8;
+    public static final int LUA_NUMBER_SIZE = 8;
 
-    private static final short LUAC_INT = 0x5678;
+    public static final short LUAC_INT = 0x5678;
 
-    private static final double LUAC_NUM = 370.5;
+    public static final double LUAC_NUM = 370.5;
 
-    private static final byte TAG_NIL = 0x00;
+    public static final byte TAG_NIL = 0x00;
 
-    private static final byte TAG_BOOLEAN = 0x01;
+    public static final byte TAG_BOOLEAN = 0x01;
 
-    private static final byte TAG_NUMBER = 0x03;
+    public static final byte TAG_NUMBER = 0x03;
 
-    private static final byte TAG_INTEGER = 0x13;
+    public static final byte TAG_INTEGER = 0x13;
 
-    private static final byte TAG_SHORT_STR = 0x04;
+    public static final byte TAG_SHORT_STR = 0x04;
 
-    private static final byte TAG_LONG_STR = 0x14;
+    public static final byte TAG_LONG_STR = 0x14;
 
     private Header header;
 
@@ -77,6 +78,8 @@ public class BinaryChunk {
         private double luacNum;
     }
 
+    @Data
+    @Builder
     public class Prototype {
         /*基本信息*/
         /*源文件名*/
@@ -84,7 +87,7 @@ public class BinaryChunk {
         /*起始行号*/
         private int lineDefined;
         /*终止行号*/
-        private int LastLineDefined;
+        private int lastLineDefined;
         /*固定参数个数*/
         private byte numParams;
         /*是否是变长参数函数*/
@@ -93,9 +96,9 @@ public class BinaryChunk {
         private byte maxStackSize;
 
         /*指令表*/
-        private int code;
+        private Integer[] code;
         /*常量表*/
-        private int[] constants;
+        private Object[] constants;
         /*upvalue表*/
         private Upvalue[] upvalues;
         /*子函数原型表*/
@@ -125,7 +128,7 @@ public class BinaryChunk {
         Reader reader = new Reader(data);
         reader.checkHeader();
         reader.readByte();
-        return reader.readProto("");
+        return reader.readProto();
     }
 
 }

@@ -1,7 +1,10 @@
 package self.lua.java.binchunk;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static self.lua.java.binchunk.BinaryChunk.*;
 
 public class Reader {
 
@@ -43,12 +46,12 @@ public class Reader {
     }
 
     public String readString() {
-        long size = readByte();
+        int size = readByte();
         if (size == 0) {
             return "";
         }
         if (size == 0xFF) {
-            size = readLuaInteger();
+            size = (int) readUint64();
         }
 
         return new String(readBytes(size - 1));
@@ -60,7 +63,107 @@ public class Reader {
         return bytes;
     }
 
+    public String readByteString(int length) {
+        byte[] bytes = readBytes(length);
+        return new String(bytes);
+    }
+
     public void checkHeader() {
+        if (!readByteString(4).equals(new String(LUA_SIGNATURE))) {
+            panic("not a precompiled chunk!");
+        }
+
+        if (readByte() != LUAC_VERSION) {
+            panic("version mismatch!");
+        }
+
+        if (readByte() != LUAC_FORMAT) {
+            panic("format mismatch!");
+        }
+
+        if (!readByteString(6).equals(new String(LUAC_DATA))) {
+            panic("corrupted!");
+        }
+
+        if (readByte() != CINT_SIZE) {
+            panic("int size mismatch!");
+        }
+
+        if (readByte() != CSIZET_SIZE) {
+            panic("size_t size mismatch!");
+        }
+
+        if (readByte() != INSTRUCTION_SIZE) {
+            panic("instruction size mismatch!");
+        }
+
+        if (readByte() != LUA_INTEGER_SIZE) {
+            panic("lua integer size mismatch!");
+        }
+
+        if (readByte() != LUA_NUMBER_SIZE) {
+            panic("lua number size mismatch!");
+        }
+
+        if (readLuaInteger() != LUAC_INT) {
+            panic("endianness mismatch!");
+        }
+
+        if (readLuaNumber() != LUAC_NUM) {
+            panic("float format mismatch!");
+        }
+    }
+
+    public BinaryChunk.Prototype readProto() {
+        String source = readString();
+        BinaryChunk.Prototype.builder()
+                .source(source)
+                .lineDefined(readUint32())
+                .lastLineDefined(readUint32())
+                .numParams(readByte())
+                .isVararg(readByte())
+                .maxStackSize(readByte())
+                .code(readCode())
+                .constants(readConstants())
+                .upvalues(readUpvalues())
+                .protos(readProtos())
+                .lineInfo(readLineInfo())
+                .locVars(readLocVars())
+                .upvalueNames(readUpvalueNames())
+                .build();
+    }
+
+    public Integer[] readCode() {
+        int size = readUint32();
+        return IntStream.range(0, size).mapToObj(i -> readUint32()).toArray(Integer[]::new);
+    }
+
+    public Object[] readConstants() {
+        int size = readUint32();
+        return IntStream.range(0, size).mapToObj(i -> readConstant()).toArray();
+    }
+
+    public Object readConstant() {
+        byte tag = readByte();
+        switch (tag) {
+            case TAG_NIL:
+                return "nil";
+            case TAG_BOOLEAN:
+                return readByte() != 0;
+            case TAG_INTEGER:
+                return readLuaInteger();
+            case TAG_NUMBER:
+                return readLuaNumber();
+            case TAG_SHORT_STR:
+                return readString();
+            case TAG_LONG_STR:
+                return readString();
+            default:
+                panic("corrupted!");
+        }
+    }
+
+    private void panic(String message) {
 
     }
 }
