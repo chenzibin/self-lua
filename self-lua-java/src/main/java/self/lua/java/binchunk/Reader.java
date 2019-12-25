@@ -1,7 +1,6 @@
 package self.lua.java.binchunk;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static self.lua.java.binchunk.BinaryChunk.*;
@@ -34,7 +33,7 @@ public class Reader {
     }
 
     public long readLuaInteger() {
-        long i = IntStream.range(0, 8).map(index -> data[index + offset] << (8 * index)).sum();
+        long i = IntStream.range(0, 8).mapToLong(index -> ((long) data[index + offset]) << (8 * index)).sum();
         offset += 8;
         return i;
     }
@@ -116,7 +115,7 @@ public class Reader {
 
     public BinaryChunk.Prototype readProto() {
         String source = readString();
-        BinaryChunk.Prototype.builder()
+        return BinaryChunk.Prototype.builder()
                 .source(source)
                 .lineDefined(readUint32())
                 .lastLineDefined(readUint32())
@@ -160,7 +159,34 @@ public class Reader {
                 return readString();
             default:
                 panic("corrupted!");
+                return null;
         }
+    }
+
+    private BinaryChunk.Prototype.Upvalue[] readUpvalues() {
+        int size = readUint32();
+        return IntStream.range(0, size)
+                .mapToObj(i -> new BinaryChunk.Prototype.Upvalue(readByte(), readByte()))
+                .toArray(BinaryChunk.Prototype.Upvalue[]::new);
+    }
+
+    private BinaryChunk.Prototype[] readProtos() {
+        int size = readUint32();
+        return IntStream.range(0, size)
+                .mapToObj(i -> readProto())
+                .toArray(BinaryChunk.Prototype[]::new);
+    }
+
+    private int[] readLineInfo() {
+        return null;
+    }
+
+    private BinaryChunk.Prototype.LocVar[] readLocVars() {
+        return null;
+    }
+
+    private String[] readUpvalueNames() {
+        return null;
     }
 
     private void panic(String message) {

@@ -1,5 +1,6 @@
 package self.lua.java.binchunk;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -80,7 +81,7 @@ public class BinaryChunk {
 
     @Data
     @Builder
-    public class Prototype {
+    public static class Prototype {
         /*基本信息*/
         /*源文件名*/
         private String source;
@@ -112,7 +113,8 @@ public class BinaryChunk {
         /*upvalue名列表*/
         private String[] upvalueNames;
 
-        public class Upvalue {
+        @AllArgsConstructor
+        public static class Upvalue {
             private byte instack;
             private byte idx;
         }
@@ -124,7 +126,7 @@ public class BinaryChunk {
         }
     }
 
-    public Prototype undump(byte[] data) {
+    public Prototype unDump(byte[] data) {
         Reader reader = new Reader(data);
         reader.checkHeader();
         reader.readByte();
