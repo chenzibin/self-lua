@@ -40,7 +40,6 @@ public class Reader {
 
     public double readLuaNumber() {
         double i = Double.longBitsToDouble(readLuaInteger());
-        offset += 8;
         return i;
     }
 
@@ -133,8 +132,11 @@ public class Reader {
         return header;
     }
 
-    public Prototype readProto() {
+    public Prototype readProto(String parentSource) {
         String source = readString();
+        if ("".equals(source)) {
+            source = parentSource;
+        }
         return Prototype.builder()
                 .source(source)
                 .lineDefined(readUint32())
@@ -145,7 +147,7 @@ public class Reader {
                 .code(readCode())
                 .constants(readConstants())
                 .upvalues(readUpvalues())
-                .protos(readProtos())
+                .protos(readProtos(source))
                 .lineInfo(readLineInfo())
                 .locVars(readLocVars())
                 .upvalueNames(readUpvalueNames())
@@ -186,27 +188,34 @@ public class Reader {
     private Prototype.Upvalue[] readUpvalues() {
         int size = readUint32();
         return IntStream.range(0, size)
-                .mapToObj(i -> new BinaryChunk.Prototype.Upvalue(readByte(), readByte()))
-                .toArray(BinaryChunk.Prototype.Upvalue[]::new);
+                .mapToObj(i -> new Prototype.Upvalue(readByte(), readByte()))
+                .toArray(Prototype.Upvalue[]::new);
     }
 
-    private BinaryChunk.Prototype[] readProtos() {
+    private Prototype[] readProtos(String parentSource) {
         int size = readUint32();
         return IntStream.range(0, size)
-                .mapToObj(i -> readProto())
-                .toArray(BinaryChunk.Prototype[]::new);
+                .mapToObj(i -> readProto(parentSource))
+                .toArray(Prototype[]::new);
     }
 
-    private int[] readLineInfo() {
-        return null;
+    private Integer[] readLineInfo() {
+        int size = readUint32();
+        return IntStream.range(0, size).mapToObj(i -> readUint32()).toArray(Integer[]::new);
     }
 
-    private BinaryChunk.Prototype.LocVar[] readLocVars() {
-        return null;
+    private Prototype.LocVar[] readLocVars() {
+        int size = readUint32();
+        return IntStream.range(0, size)
+                .mapToObj(i -> new Prototype.LocVar(readString(), readUint32(), readUint32()))
+                .toArray(Prototype.LocVar[]::new);
     }
 
     private String[] readUpvalueNames() {
-        return null;
+        int size = readUint32();
+        return IntStream.range(0, size)
+                .mapToObj(i -> readString())
+                .toArray(String[]::new);
     }
 
     private void panic(String message) {

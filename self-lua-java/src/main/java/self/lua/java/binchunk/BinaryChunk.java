@@ -108,7 +108,7 @@ public class BinaryChunk {
 
         /*调试信息*/
         /*行号表*/
-        private int[] lineInfo;
+        private Integer[] lineInfo;
         /*局部变量表*/
         private LocVar[] locVars;
         /*upvalue名列表*/
@@ -120,7 +120,8 @@ public class BinaryChunk {
             private byte idx;
         }
 
-        public class LocVar {
+        @AllArgsConstructor
+        public static class LocVar {
             private String varName;
             private int startPc;
             private int endPc;
@@ -131,7 +132,7 @@ public class BinaryChunk {
         Reader reader = new Reader(data);
         this.header = reader.checkHeader();
         this.sizeUpvalues = reader.readByte();
-        this.mainFunc = reader.readProto();
+        this.mainFunc = reader.readProto("");
         return this.mainFunc;
     }
 

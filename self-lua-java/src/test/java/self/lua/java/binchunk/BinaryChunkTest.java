@@ -18,7 +18,8 @@ public class BinaryChunkTest {
     @Test
     public void testUnDump() throws IOException {
 
-        String luacPath = "F:\\work\\code\\self-lua\\self-lua-test\\src\\ch02\\luac.out";
+        String rootDir = System.getProperty("user.dir");
+        String luacPath = String.format("%s/../self-lua-test/src/ch02/foo_bar.luac", rootDir);
         File file = new File(luacPath);
         try (FileInputStream in = new FileInputStream(file)) {
             byte[] data = new byte[in.available()];
