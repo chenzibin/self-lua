@@ -54,7 +54,8 @@ public class BinaryChunk {
     private Prototype mainFunc;
 
     @Data
-    public class Header {
+    @Builder
+    public static class Header {
         /*签名,快速校验文件格式*/
         private byte[] signature;
         /*版本号*/
@@ -128,9 +129,10 @@ public class BinaryChunk {
 
     public Prototype unDump(byte[] data) {
         Reader reader = new Reader(data);
-        reader.checkHeader();
-        reader.readByte();
-        return reader.readProto();
+        this.header = reader.checkHeader();
+        this.sizeUpvalues = reader.readByte();
+        this.mainFunc = reader.readProto();
+        return this.mainFunc;
     }
 
 }

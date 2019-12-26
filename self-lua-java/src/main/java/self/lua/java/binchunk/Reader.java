@@ -67,55 +67,75 @@ public class Reader {
         return new String(bytes);
     }
 
-    public void checkHeader() {
-        if (!readByteString(4).equals(new String(LUA_SIGNATURE))) {
+    public String bytesToString(byte[] bytes) {
+        return new String(bytes);
+    }
+
+    public Header checkHeader() {
+        Header header = Header.builder()
+                .signature(readBytes(4))
+                .version(readByte())
+                .format(readByte())
+                .luacData(readBytes(6))
+                .cintSize(readByte())
+                .sizetSize(readByte())
+                .instructionSize(readByte())
+                .luaIntegerSize(readByte())
+                .luaNumberSize(readByte())
+                .luacInt(readLuaInteger())
+                .luacNum(readLuaNumber())
+                .build();
+
+        if (!bytesToString(header.getSignature()).equals(bytesToString(LUA_SIGNATURE))) {
             panic("not a precompiled chunk!");
         }
 
-        if (readByte() != LUAC_VERSION) {
+        if (header.getVersion() != LUAC_VERSION) {
             panic("version mismatch!");
         }
 
-        if (readByte() != LUAC_FORMAT) {
+        if (header.getFormat() != LUAC_FORMAT) {
             panic("format mismatch!");
         }
 
-        if (!readByteString(6).equals(new String(LUAC_DATA))) {
+        if (!bytesToString(header.getLuacData()).equals(bytesToString(LUAC_DATA))) {
             panic("corrupted!");
         }
 
-        if (readByte() != CINT_SIZE) {
+        if (header.getCintSize() != CINT_SIZE) {
             panic("int size mismatch!");
         }
 
-        if (readByte() != CSIZET_SIZE) {
+        if (header.getSizetSize() != CSIZET_SIZE) {
             panic("size_t size mismatch!");
         }
 
-        if (readByte() != INSTRUCTION_SIZE) {
+        if (header.getInstructionSize() != INSTRUCTION_SIZE) {
             panic("instruction size mismatch!");
         }
 
-        if (readByte() != LUA_INTEGER_SIZE) {
+        if (header.getLuaIntegerSize() != LUA_INTEGER_SIZE) {
             panic("lua integer size mismatch!");
         }
 
-        if (readByte() != LUA_NUMBER_SIZE) {
+        if (header.getLuaNumberSize() != LUA_NUMBER_SIZE) {
             panic("lua number size mismatch!");
         }
 
-        if (readLuaInteger() != LUAC_INT) {
+        if (header.getLuacInt() != LUAC_INT) {
             panic("endianness mismatch!");
         }
 
-        if (readLuaNumber() != LUAC_NUM) {
+        if (header.getLuacNum() != LUAC_NUM) {
             panic("float format mismatch!");
         }
+
+        return header;
     }
 
-    public BinaryChunk.Prototype readProto() {
+    public Prototype readProto() {
         String source = readString();
-        return BinaryChunk.Prototype.builder()
+        return Prototype.builder()
                 .source(source)
                 .lineDefined(readUint32())
                 .lastLineDefined(readUint32())
@@ -163,7 +183,7 @@ public class Reader {
         }
     }
 
-    private BinaryChunk.Prototype.Upvalue[] readUpvalues() {
+    private Prototype.Upvalue[] readUpvalues() {
         int size = readUint32();
         return IntStream.range(0, size)
                 .mapToObj(i -> new BinaryChunk.Prototype.Upvalue(readByte(), readByte()))
