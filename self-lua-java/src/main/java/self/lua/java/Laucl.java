@@ -1,6 +1,8 @@
 package self.lua.java;
 
 import self.lua.java.binchunk.BinaryChunk;
+import self.lua.java.vm.Instruction;
+import self.lua.java.vm.Opcode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +29,7 @@ public class Laucl {
 
     static String functionFormat = "%s <%s:%s,%s> (%s instructions at %s)";
     static String paramFormat = "%s%s params, %s slots, %s upvalue, %s locals, %s constant, %s function";
-    static String instructionFormat = "        %s       [%s]    %s         %s %s     ; %s";
+    static String instructionFormat = "        %s       [%s]    %s         %s     ; %s";
 
     public static void laucl(BinaryChunk.Prototype prototype, String function) {
         System.out.println();
@@ -35,12 +37,30 @@ public class Laucl {
         System.out.println(String.format(paramFormat, prototype.getNumParams(), prototype.getIsVararg() == 1 ? "+" : "", prototype.getMaxStackSize(), prototype.getUpvalues().length, prototype.getLocVars().length, prototype.getConstants().length, prototype.getProtos().length));
 
         for (int pc = 0; pc < prototype.getCode().length; pc++) {
-            // todo instructions
-            System.out.println(String.format(instructionFormat, pc + 1, prototype.getLineInfo()[pc], "CLOSURE", "0", "1", prototype.getCode()[pc]));
+            Instruction instruction = new Instruction(prototype.getCode()[pc]);
+            System.out.println(String.format(instructionFormat, pc + 1, prototype.getLineInfo()[pc], instruction.opName(), opArg(instruction), prototype.getCode()[pc]));
         }
         for (BinaryChunk.Prototype proto : prototype.getProtos()) {
             laucl(proto, "function");
         }
     }
 
+    public static String opArg(Instruction instruction) {
+        switch (instruction.opMode()) {
+            case Opcode.IABC:
+                Instruction.IABC iabc = instruction.abc();
+                return String.format("%s %s %s", iabc.getA(), iabc.getB(), iabc.getC());
+            case Opcode.IABx:
+                Instruction.IABx iabx = instruction.abx();
+                return String.format("%s %s", iabx.getA(), iabx.getBx());
+            case Opcode.IAsBx:
+                Instruction.IAsBx iasbx = instruction.asbx();
+                return String.format("%s %s", iasbx.getA(), iasbx.getSbx());
+            case Opcode.IAx:
+                Instruction.IAx iax = instruction.ax();
+                return String.valueOf(iax.getAx());
+            default:
+                return "";
+        }
+    }
 }
