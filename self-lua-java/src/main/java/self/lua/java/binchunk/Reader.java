@@ -219,6 +219,6 @@ public class Reader {
     }
 
     private void panic(String message) {
-
+        throw new RuntimeException(message);
     }
 }

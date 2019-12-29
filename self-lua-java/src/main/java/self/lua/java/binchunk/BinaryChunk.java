@@ -117,7 +117,7 @@ public class BinaryChunk {
         @AllArgsConstructor
         public static class Upvalue {
             private byte instack;
-            private byte idx;
+            private byte index;
         }
 
         @AllArgsConstructor
