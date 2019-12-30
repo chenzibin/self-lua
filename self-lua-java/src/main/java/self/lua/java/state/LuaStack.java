@@ -10,7 +10,7 @@ public class LuaStack {
     private LuaValue[] slots;
     private int top;
 
-    public LuaStack newLuaStack(int size) {
+    public static LuaStack newLuaStack(int size) {
         return LuaStack.builder()
                 .slots(new LuaValue[size])
                 .top(0)
@@ -94,5 +94,18 @@ public class LuaStack {
             return;
         }
         throw new RuntimeException("invalid index!");
+    }
+
+    /**
+     * 反转
+     */
+    public void reverse(int fromIndex, int toIndex) {
+        int from = fromIndex - 1;
+        int to = toIndex - 1;
+        for (; from < to; from++, to--) {
+            LuaValue remain = slots[from];
+            slots[from] = slots[to];
+            slots[to] = remain;
+        }
     }
 }
